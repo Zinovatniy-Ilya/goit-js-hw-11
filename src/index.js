@@ -5,7 +5,7 @@ import { onGalleryCard } from './js/basicLightBox';
 import './style.css';
 import NewsApiService from './js/apiService';
 import ImageTpl from './templates/images';
-import LoadMoreBtn from './js/load-more-btn';
+import LoadMoreBtn from './js/loadBtn';
 
 const refs = {
   input: document.querySelector('#search-form'),
