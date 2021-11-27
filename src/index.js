@@ -1,73 +1,67 @@
-import { error } from '@pnotify/core';
-import '@pnotify/core/dist/BrightTheme.css';
-import '@pnotify/core/dist/PNotify.css';
-import { onGalleryCard } from './js/basicLightBox';
-import './style.css';
-import NewsApiService from './js/apiService';
-import ImageTpl from './templates/images';
-import LoadMoreBtn from './js/loadBtn';
-
-const refs = {
-  input: document.querySelector('#search-form'),
-  gallery: document.querySelector('.gallery'),
-  button: document.querySelector('.button'),
-  body: document.querySelector('body'),
-};
+import './sass/main.scss';
+import galleryImage from './templates/photoList.hbs';
+import ImageServise from './js/apiService';
+import LoadMoreBtn from './js/load-more-btn';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const loadMoreBtn = new LoadMoreBtn({
-  selector: '[data-action="load-more"]',
+   selector: '.btn',
   hidden: true,
 });
 
-const newsApiService = new NewsApiService();
+const refs = {
+  container: document.querySelector('.container'),
+  btnSearch: document.querySelector('.btn-search'),
+  input: document.querySelector('.input'),
+};
 
-refs.input.addEventListener('submit', onSearch);
-refs.button.addEventListener('click', fetchImage);
-refs.gallery.addEventListener('click', onGalleryCard);
 
-function onSearch(event) {
-  event.preventDefault();
-  newsApiService.query = event.currentTarget.elements.query.value;
-  if (newsApiService.query === '') {
-    loadMoreBtn.disable();
-    return onBlancInput();
-  }
+const imageServise = new ImageServise();
+
+refs.btnSearch.addEventListener('click', onSearch);
+
+loadMoreBtn.refs.btn.addEventListener('click', fetchImages);
+
+
+function onSearch(e) {
+  e.preventDefault();
+ 
+  imageServise.searchValue = refs.input.value;
+
   loadMoreBtn.show();
-  newsApiService.resetPage();
-  clearImageGallery();
-  fetchImage();
+  imageServise.resetPage();
+  clearMarkup();
+  fetchImages();
 }
 
-function fetchImage() {
-  loadMoreBtn.disable();
-  newsApiService.fetchImage().then(hits => {
-    appendImageMarkup(hits);
+function fetchImages() {
+  loadMoreBtn.disabled();
+  imageServise.fetchImages().then(hits => {
+    if (hits.length === 0) {
+      Notify.failure('Sorry, there are no images matching your search query. Please try again');
+
+      refs.input.value = '';
+    } else {
+      Notify.success('Horray! We found 500 images');
+    }
+    appendImagesMurkup(hits);
+
     loadMoreBtn.enable();
+    scroll();
   });
-  scrollPage();
-}
 
-function appendImageMarkup(hits) {
-  refs.gallery.insertAdjacentHTML('beforeend', ImageTpl(hits));
 }
-
-function clearImageGallery() {
-  refs.gallery.innerHTML = '';
-}
-
-function scrollPage() {
-  setTimeout(() => {
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      left: 0,
-      behavior: 'smooth',
-    });
-  }, 500);
-}
-
-function onBlancInput() {
-  error({
-    text: 'No matches found. Enter anything',
-    delay: 2000,
+  function scroll() {
+  window.scrollTo({
+    behavior: 'smooth',
+    top: document.documentElement.scrollHeight,
   });
+  }
+
+function appendImagesMurkup(hits) {
+  refs.container.insertAdjacentHTML('beforeend', galleryImage(hits));
+}
+
+function clearMarkup() {
+  refs.container.innerHTML = '';
 }

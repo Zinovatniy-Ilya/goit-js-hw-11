@@ -29,7 +29,6 @@
     "@pnotify/core": "^5.2.0",
     "axios": "^0.24.0",
     "basiclightbox": "^5.0.4",
-    "notiflix": "^3.2.2",
-    "simplelightbox": "^2.10.1"
+    "notiflix": "^3.2.2"
   }
 }
